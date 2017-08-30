@@ -28,10 +28,20 @@ public class DatePickDialog extends Dialog {
     private DateTimePickerView mDateTimePickerView;
 
     private Builder mBuilder;
+    private final String pattern;
 
     private DatePickDialog(Context context, Builder builder) {
         super(context, R.style.dialog_style);
         mBuilder = builder;
+        if(mBuilder.style == DateParams.STYLE_ALL) {
+            pattern = "yyyy-MM-dd HH:mm";
+        } else if (mBuilder.style == DateParams.STYLE_DATE_ONLY) {
+            pattern = "yyyy-MM-dd";
+        } else if (mBuilder.style == DateParams.STYLE_TIME_ONLY) {
+            pattern = "HH:mm";
+        } else {
+            pattern = "yyyy-MM-dd HH:mm";
+        }
     }
 
     @Override
@@ -94,7 +104,7 @@ public class DatePickDialog extends Dialog {
     }
 
     private void setDate(Date date) {
-        String message = new SimpleDateFormat("yyyy-MM-dd HH:mm").format(date);
+        String message = new SimpleDateFormat(pattern).format(date);
         messageText.setText(message);
     }
 
