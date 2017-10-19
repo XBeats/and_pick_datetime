@@ -33,15 +33,7 @@ public class DatePickDialog extends Dialog {
     private DatePickDialog(Context context, Builder builder) {
         super(context, R.style.dialog_style);
         mBuilder = builder;
-        if(mBuilder.style == DateParams.STYLE_ALL) {
-            pattern = "yyyy-MM-dd HH:mm";
-        } else if (mBuilder.style == DateParams.STYLE_DATE_ONLY) {
-            pattern = "yyyy-MM-dd";
-        } else if (mBuilder.style == DateParams.STYLE_TIME_ONLY) {
-            pattern = "HH:mm";
-        } else {
-            pattern = "yyyy-MM-dd HH:mm";
-        }
+        pattern = DateParams.getFormat(mBuilder.types);
     }
 
     @Override
@@ -75,7 +67,8 @@ public class DatePickDialog extends Dialog {
                 setDate(date);
             }
         });
-        DateParams dateParams = new DateParams(mBuilder.style);
+        DateParams dateParams = new DateParams();
+        dateParams.types = mBuilder.types;
         dateParams.currentDate = mBuilder.currentDate;
         dateParams.startDate = mBuilder.startDate;
         dateParams.endDate = mBuilder.endDate;
@@ -109,15 +102,16 @@ public class DatePickDialog extends Dialog {
     }
 
     public static class Builder {
-        private int style;
+        private int[] types;
         private String title;
         private Date currentDate;
         private Date startDate;
         private Date endDate;
         private OnSureListener onSureListener;
 
-        public Builder(@DateParams.Style int style) {
-            this.style = style;
+        public Builder setTypes(@DateParams.Type int... types) {
+            this.types = types;
+            return this;
         }
 
         public Builder setTitle(String title) {

@@ -11,20 +11,57 @@ import java.util.Date;
  */
 
 public class DateParams {
-    public int style;
+    public int[] types;
     public Date currentDate;
     public Date startDate;
     public Date endDate;
 
-    public DateParams(@Style int style) {
-        this.style = style;
+    public DateParams(@Type int... style) {
+        this.types = style;
     }
 
-    @IntDef({STYLE_ALL, STYLE_DATE_ONLY, STYLE_TIME_ONLY})
+    @IntDef({TYPE_YEAR, TYPE_MONTH, TYPE_DAY, TYPE_HOUR, TYPE_MINUTE})
     @Retention(RetentionPolicy.SOURCE)
-    public @interface Style{}
+    public @interface Type {}
 
-    public final static int STYLE_ALL = 1;
-    public final static int STYLE_DATE_ONLY = 2;
-    public final static int STYLE_TIME_ONLY = 3;
+    public final static int TYPE_YEAR = 1; // 2 x 0
+    public final static int TYPE_MONTH = 2; // 2 x 1
+    public final static int TYPE_DAY = 4; // 2 x 2
+    public final static int TYPE_HOUR = 8; // 2 x 3
+    public final static int TYPE_MINUTE = 16; // 2 x 4
+
+    public static String getFormat(int[] types) {
+        if(types == null) {
+            return null;
+        }
+
+        int total = 0;
+        for(int type : types) {
+            total = total + type;
+        }
+
+        StringBuffer format = new StringBuffer();
+        if((total & TYPE_YEAR) == TYPE_YEAR) {
+            format.append("yyyy");
+        }
+
+        if((total & TYPE_MONTH) == TYPE_MONTH) {
+            format.append("-MM");
+        }
+
+        if((total & TYPE_DAY) == TYPE_DAY) {
+            format.append("-dd");
+        }
+
+        if((total & TYPE_HOUR) == TYPE_HOUR) {
+            format.append(" HH");
+        }
+
+        if((total & TYPE_MINUTE) == TYPE_MINUTE) {
+            format.append(":mm");
+        }
+
+        return format.toString();
+    }
+
 }

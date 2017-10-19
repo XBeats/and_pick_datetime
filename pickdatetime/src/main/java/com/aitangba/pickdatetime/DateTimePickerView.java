@@ -1,6 +1,7 @@
 package com.aitangba.pickdatetime;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextPaint;
@@ -10,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.aitangba.pickdatetime.adapter.datetime.DatePickAdapter;
 import com.aitangba.pickdatetime.adapter.datetime.DayAdapter;
 import com.aitangba.pickdatetime.adapter.datetime.HourAdapter;
 import com.aitangba.pickdatetime.adapter.datetime.MinuteAdapter;
@@ -30,11 +32,10 @@ public class DateTimePickerView extends LinearLayout {
 
     private static final String TAG = "WheelPicker";
 
-    private LayoutParams mLayoutParams = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
     final DatePick mDatePick = new DatePick();
     private OnChangeListener mOnChangeListener;
     private WheelView mDayView;
-    private DayAdapter mDayAdapter;
+    private DatePickAdapter mDayAdapter;
 
     public DateTimePickerView(Context context) {
         super(context);
@@ -57,93 +58,106 @@ public class DateTimePickerView extends LinearLayout {
         calendar.setTime(params.currentDate);
         mDatePick.setData(calendar);
 
-        if(params.style == DateParams.STYLE_ALL || params.style == DateParams.STYLE_DATE_ONLY) {
-            WheelView yearView = new WheelView(getContext());
-            final YearAdapter yearAdapter = new YearAdapter(params, mDatePick);
-            yearView.setCyclic(false);
-            yearView.setAdapter(yearAdapter);
-            yearView.setCurrentItem(yearAdapter.getCurrentIndex());
-            mLayoutParams.weight = 3;
-            addView(yearView, mLayoutParams);
-            yearView.addChangingListener(new OnWheelChangedListener() {
-                @Override
-                public void onChanged(WheelView wheel, int oldValue, int newValue) {
-                    mDatePick.year = yearAdapter.getValue(newValue);
-                    mDayAdapter.refreshValues();
-                    DateTimePickerView.this.onChanged();
-                }
-            });
-
-            WheelView monthView = new WheelView(getContext());
-            final MonthAdapter monthAdapter = new MonthAdapter(params, mDatePick);
-            monthView.setCyclic(true);
-            monthView.setAdapter(monthAdapter);
-            monthView.setCurrentItem(monthAdapter.getCurrentIndex());
-            mLayoutParams.weight = 2;
-            addView(monthView, mLayoutParams);
-            monthView.addChangingListener(new OnWheelChangedListener() {
-                @Override
-                public void onChanged(WheelView wheel, int oldValue, int newValue) {
-                    mDatePick.month = monthAdapter.getValue(newValue);
-                    mDayAdapter.refreshValues();
-                    DateTimePickerView.this.onChanged();
-                }
-            });
-
-            mDayView = new WheelView(getContext());
-            mDayView.setCyclic(true);
-            mDayView.setAdapter(mDayAdapter = new DayAdapter(params, mDatePick));
-            mDayView.setCurrentItem(mDayAdapter.getCurrentIndex());
-            mLayoutParams.weight = 2;
-            addView(mDayView, mLayoutParams);
-            mDayView.addChangingListener(new OnWheelChangedListener() {
-                @Override
-                public void onChanged(WheelView wheel, int oldValue, int newValue) {
-                    mDatePick.day = mDayAdapter.getValue(newValue);
-                    DateTimePickerView.this.onChanged();
-                }
-            });
+        if(params.types == null) {
+            return;
         }
+        LayoutParams layoutParams = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        layoutParams.gravity = Gravity.CENTER;
+        for(int type : params.types) {
 
-        if(params.style == DateParams.STYLE_ALL || params.style == DateParams.STYLE_TIME_ONLY) {
-            final HourAdapter hourAdapter = new HourAdapter(params, mDatePick);
-            WheelView hourView = new WheelView(getContext());
-            hourView.setCyclic(true);
-            hourView.setAdapter(hourAdapter);
-            hourView.setCurrentItem(hourAdapter.getCurrentIndex());
-            hourView.addChangingListener(new OnWheelChangedListener() {
-                @Override
-                public void onChanged(WheelView wheel, int oldValue, int newValue) {
-                    mDatePick.hour = hourAdapter.getValue(newValue);
-                    DateTimePickerView.this.onChanged();
-                }
-            });
-            mLayoutParams.weight = 2;
-            addView(hourView, mLayoutParams);
+            WheelView wheelView = new WheelView(getContext());
+            final DatePickAdapter datePickAdapter;
 
-            LayoutParams layoutParams = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            layoutParams.gravity = Gravity.CENTER_VERTICAL;
-            TextView textView = new TextView(getContext());
-            TextPaint paint = textView.getPaint();
-            paint.setFakeBoldText(true);
-            textView.setText(":");
-            textView.setTextColor(0xff444444);
-            addView(textView, layoutParams);
+            switch (type) {
+                case DateParams.TYPE_YEAR:
+                    wheelView.setCyclic(false);
+                    wheelView.setAdapter(datePickAdapter = new YearAdapter(params, mDatePick));
+                    wheelView.setCurrentItem(datePickAdapter.getCurrentIndex());
+                    layoutParams.weight = 3;
+                    wheelView.addChangingListener(new OnWheelChangedListener() {
+                        @Override
+                        public void onChanged(WheelView wheel, int oldValue, int newValue) {
+                            mDatePick.year = datePickAdapter.getValue(newValue);
+                            mDayAdapter.refreshValues();
+                            DateTimePickerView.this.onChanged();
+                        }
+                    });
+                    break;
 
-            final MinuteAdapter minuteAdapter = new MinuteAdapter(params, mDatePick);
-            WheelView minuteView = new WheelView(getContext());
-            minuteView.setCyclic(true);
-            minuteView.setAdapter(minuteAdapter);
-            minuteView.setCurrentItem(minuteAdapter.getCurrentIndex());
-            minuteView.addChangingListener(new OnWheelChangedListener() {
-                @Override
-                public void onChanged(WheelView wheel, int oldValue, int newValue) {
-                    mDatePick.minute = minuteAdapter.getValue(newValue);
-                    DateTimePickerView.this.onChanged();
-                }
-            });
-            mLayoutParams.weight = 2;
-            addView(minuteView, mLayoutParams);
+                case DateParams.TYPE_MONTH:
+                    wheelView.setCyclic(true);
+                    wheelView.setAdapter(datePickAdapter = new MonthAdapter(params, mDatePick));
+                    wheelView.setCurrentItem(datePickAdapter.getCurrentIndex());
+                    layoutParams.weight = 2;
+                    wheelView.addChangingListener(new OnWheelChangedListener() {
+                        @Override
+                        public void onChanged(WheelView wheel, int oldValue, int newValue) {
+                            mDatePick.month = datePickAdapter.getValue(newValue);
+                            mDayAdapter.refreshValues();
+                            DateTimePickerView.this.onChanged();
+                        }
+                    });
+                    break;
+
+                case DateParams.TYPE_DAY:
+                    mDayView = wheelView;
+                    datePickAdapter = new DayAdapter(params, mDatePick);
+                    mDayAdapter = datePickAdapter;
+
+                    wheelView.setCyclic(true);
+                    wheelView.setAdapter(datePickAdapter);
+                    wheelView.setCurrentItem(datePickAdapter.getCurrentIndex());
+                    layoutParams.weight = 2;
+                    wheelView.addChangingListener(new OnWheelChangedListener() {
+                        @Override
+                        public void onChanged(WheelView wheel, int oldValue, int newValue) {
+                            mDatePick.day = datePickAdapter.getValue(newValue);
+                            DateTimePickerView.this.onChanged();
+                        }
+                    });
+                    break;
+
+                case DateParams.TYPE_HOUR:
+                    wheelView.setCyclic(true);
+                    wheelView.setAdapter(datePickAdapter = new HourAdapter(params, mDatePick));
+                    wheelView.setCurrentItem(datePickAdapter.getCurrentIndex());
+                    wheelView.addChangingListener(new OnWheelChangedListener() {
+                        @Override
+                        public void onChanged(WheelView wheel, int oldValue, int newValue) {
+                            mDatePick.hour = datePickAdapter.getValue(newValue);
+                            DateTimePickerView.this.onChanged();
+                        }
+                    });
+                    layoutParams.weight = 2;
+                    break;
+
+                case DateParams.TYPE_MINUTE:
+                    wheelView.setCyclic(true);
+                    wheelView.setAdapter(datePickAdapter = new MinuteAdapter(params, mDatePick));
+                    wheelView.setCurrentItem(datePickAdapter.getCurrentIndex());
+                    wheelView.addChangingListener(new OnWheelChangedListener() {
+                        @Override
+                        public void onChanged(WheelView wheel, int oldValue, int newValue) {
+                            mDatePick.minute = datePickAdapter.getValue(newValue);
+                            DateTimePickerView.this.onChanged();
+                        }
+                    });
+                    layoutParams.weight = 2;
+                    break;
+            }
+
+            addView(wheelView, layoutParams);
+
+            if(type == DateParams.TYPE_HOUR) {
+                layoutParams.weight = 0;
+                TextView textView = new TextView(getContext());
+                textView.setGravity(Gravity.CENTER);
+                TextPaint paint = textView.getPaint();
+                paint.setFakeBoldText(true);
+                textView.setText(":");
+                textView.setTextColor(0xff444444);
+                addView(textView, layoutParams);
+            }
         }
     }
 

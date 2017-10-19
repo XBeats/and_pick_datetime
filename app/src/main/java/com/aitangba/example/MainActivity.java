@@ -23,32 +23,34 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.all).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showDatePickDialog(DateParams.STYLE_ALL);
+                showDatePickDialog(DateParams.TYPE_YEAR, DateParams.TYPE_MONTH, DateParams.TYPE_DAY,
+                        DateParams.TYPE_HOUR, DateParams.TYPE_MINUTE);
             }
         });
 
         findViewById(R.id.date).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showDatePickDialog(DateParams.STYLE_DATE_ONLY);
+                showDatePickDialog(DateParams.TYPE_YEAR, DateParams.TYPE_MONTH, DateParams.TYPE_DAY);
             }
         });
 
         findViewById(R.id.time).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showDatePickDialog(DateParams.STYLE_TIME_ONLY);
+                showDatePickDialog(DateParams.TYPE_HOUR, DateParams.TYPE_MINUTE);
             }
         });
     }
 
-    private void showDatePickDialog(@DateParams.Style int style) {
+    private void showDatePickDialog(@DateParams.Type int... style) {
         Calendar todayCal = Calendar.getInstance();
         Calendar startCal = Calendar.getInstance();
         Calendar endCal = Calendar.getInstance();
         endCal.add(Calendar.YEAR, 6);
 
-        new DatePickDialog.Builder(style)
+        new DatePickDialog.Builder()
+                .setTypes(style)
                 .setCurrentDate(todayCal.getTime())
                 .setStartDate(startCal.getTime())
                 .setEndDate(endCal.getTime())
