@@ -79,6 +79,7 @@ public class DateTimePickerView extends LinearLayout {
                         public void onChanged(WheelView wheel, int oldValue, int newValue) {
                             mDatePick.year = datePickAdapter.getValue(newValue);
                             mDayAdapter.refreshValues();
+                            mDayView.setCurrentItem(mDayAdapter.getCurrentIndex());
                             DateTimePickerView.this.onChanged();
                         }
                     });
@@ -94,6 +95,7 @@ public class DateTimePickerView extends LinearLayout {
                         public void onChanged(WheelView wheel, int oldValue, int newValue) {
                             mDatePick.month = datePickAdapter.getValue(newValue);
                             mDayAdapter.refreshValues();
+                            mDayView.setCurrentItem(mDayAdapter.getCurrentIndex());
                             DateTimePickerView.this.onChanged();
                         }
                     });
@@ -175,13 +177,13 @@ public class DateTimePickerView extends LinearLayout {
         int minute = mDatePick.minute;
 
         Calendar calendar = Calendar.getInstance();
-        calendar.set(year, moth - 1, 1);
-        int maxDay = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-        if(day > maxDay) { // the max day of every month is not the same !!!
-            day = 1;
-            mDatePick.day = 1;
-            mDayView.setCurrentItem(mDayAdapter.getCurrentIndex());
-        }
+//        calendar.set(year, moth - 1, 1);
+//        int maxDay = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+//        if(day > maxDay) { // the max day of every month is not the same !!!
+//            day = 1;
+//            mDatePick.day = 1;
+//            mDayView.setCurrentItem(mDayAdapter.getCurrentIndex());
+//        }
         calendar.set(year, moth - 1, day, hour, minute);
         return calendar.getTime();
     }
